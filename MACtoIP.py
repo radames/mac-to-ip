@@ -17,15 +17,17 @@ else:
     print("Insert MAC Address to search")
     sys.exit(0)
 
-nm = NmapProcess(ip+"/24",options="-sP")
+print(f'Here is your local ip {ip}')
+nm = NmapProcess(f'{ip}/24', options="-sP")
 nm.run_background()
 
 while nm.is_running():
-    print("Nmap Scan running: ETC: {0} DONE: {1}%".format(nm.etc,nm.progress))
+    print(f'Nmap Scan running: ETC: {nm.etc} DONE: {nm.progress}%')
     sleep(2)
 nmap_report = NmapParser.parse(nm.stdout)
-res = list(filter(lambda n:n.mac == mac.strip().upper(), filter(lambda host:host.is_up(), nmap_report.hosts)))
-if res ==[]:
+
+res = next(filter(lambda n:n.mac == mac.strip().upper(), filter(lambda host:host.is_up(), nmap_report.hosts)), None)
+if res == None:
     print("Host is down or Mac address not exist")
 else:
-    print("MAC: {} with IP {}".format(mac, res[0].address))
+    print(f'\nMAC: {mac} with IP {res.address}')
